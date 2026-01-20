@@ -38,7 +38,10 @@ export function Hero() {
 
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10 animate-fade-in" style={{ animationDelay: "0.3s" }}>
-          <Button className="btn-primary text-base px-8 py-6 h-auto">
+          <Button 
+            className="btn-primary text-base px-8 py-6 h-auto"
+            onClick={() => window.open("https://buy.stripe.com/dRmaEQ9M2btv3E2bQ37wA00", "_blank")}
+          >
             Try 7 Days Free
           </Button>
           <Button 

@@ -52,7 +52,8 @@ export function Pricing() {
           {plans.map((plan) => (
             <div 
               key={plan.name}
-              className={plan.featured ? "pricing-card-featured" : "pricing-card"}
+              className={`${plan.featured ? "pricing-card-featured" : "pricing-card"} transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer`}
+              onClick={() => window.open("https://buy.stripe.com/dRmaEQ9M2btv3E2bQ37wA00", "_blank")}
             >
               {/* Badge */}
               {plan.badge && (
@@ -91,6 +92,10 @@ export function Pricing() {
               {/* CTA */}
               <Button 
                 className={plan.featured ? "btn-primary w-full" : "btn-secondary w-full"}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open("https://buy.stripe.com/dRmaEQ9M2btv3E2bQ37wA00", "_blank");
+                }}
               >
                 {plan.cta}
               </Button>

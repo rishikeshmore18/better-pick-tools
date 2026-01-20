@@ -51,7 +51,11 @@ export function Header() {
             <Link to="/login" className="link-nav text-sm font-medium">
               Login
             </Link>
-            <Button className="btn-primary" size="sm">
+            <Button 
+              className="btn-primary" 
+              size="sm"
+              onClick={() => window.open("https://buy.stripe.com/dRmaEQ9M2btv3E2bQ37wA00", "_blank")}
+            >
               Try 7 Days Free
             </Button>
           </div>
@@ -90,7 +94,10 @@ export function Header() {
               >
                 Login
               </Link>
-              <Button className="btn-primary w-full mt-2">
+              <Button 
+                className="btn-primary w-full mt-2"
+                onClick={() => window.open("https://buy.stripe.com/dRmaEQ9M2btv3E2bQ37wA00", "_blank")}
+              >
                 Try 7 Days Free
               </Button>
             </nav>
