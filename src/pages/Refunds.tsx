@@ -27,7 +27,7 @@ const Refunds = () => {
         <section className="space-y-4">
           <h2 className="text-xl font-semibold text-foreground">How to Request a Refund</h2>
           <p>
-            To request a refund, please contact us at support@betterpick.app with your 
+            To request a refund, please contact us at info@ninetynineweb.com with your 
             account email and the reason for your request. We will respond within 2 business days.
           </p>
         </section>

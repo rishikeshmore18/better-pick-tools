@@ -28,7 +28,7 @@ const Cancellations = () => {
           <h2 className="text-xl font-semibold text-foreground">How to Cancel</h2>
           <p>
             You can cancel your subscription through your account settings or by contacting 
-            us at support@betterpick.app. Cancellation requests are processed immediately.
+            us at info@ninetynineweb.com. Cancellation requests are processed immediately.
           </p>
         </section>
 
