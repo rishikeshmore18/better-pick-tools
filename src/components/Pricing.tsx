@@ -18,6 +18,7 @@ const plans = [
     cta: "Start Free Trial",
     featured: true,
     badge: "Best value",
+    checkoutUrl: "https://buy.stripe.com/dRmaEQ9M2btv3E2bQ37wA00",
   },
   {
     name: "Monthly",
@@ -33,6 +34,7 @@ const plans = [
     ],
     cta: "Start Monthly",
     featured: false,
+    checkoutUrl: "https://buy.stripe.com/7sY9AM6zQ557fmK7zN7wA01",
   },
 ];
 
@@ -53,7 +55,7 @@ export function Pricing() {
             <div 
               key={plan.name}
               className={`${plan.featured ? "pricing-card-featured" : "pricing-card"} transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer`}
-              onClick={() => window.open("https://buy.stripe.com/dRmaEQ9M2btv3E2bQ37wA00", "_blank")}
+              onClick={() => window.open(plan.checkoutUrl, "_blank")}
             >
               {/* Badge */}
               {plan.badge && (
@@ -94,7 +96,7 @@ export function Pricing() {
                 className={plan.featured ? "btn-primary w-full" : "btn-secondary w-full"}
                 onClick={(e) => {
                   e.stopPropagation();
-                  window.open("https://buy.stripe.com/dRmaEQ9M2btv3E2bQ37wA00", "_blank");
+                  window.open(plan.checkoutUrl, "_blank");
                 }}
               >
                 {plan.cta}
