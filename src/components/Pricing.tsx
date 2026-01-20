@@ -5,8 +5,10 @@ const plans = [
   {
     name: "Better Pick Annual",
     price: "$299",
+    originalPrice: "$499",
     period: "/ year",
     subtext: "Less than $1 a day",
+    highlightSubtext: true,
     features: [
       "Daily structured picks",
       "Weekly rotation notes",
@@ -20,8 +22,10 @@ const plans = [
   {
     name: "Monthly",
     price: "$39",
+    originalPrice: "$49",
     period: "/ month",
     subtext: "Cancel anytime",
+    highlightSubtext: false,
     features: [
       "Daily structured picks",
       "Weekly rotation notes",
@@ -64,10 +68,15 @@ export function Pricing() {
 
               {/* Price */}
               <div className="mb-2">
+                {plan.originalPrice && (
+                  <span className="text-xl text-muted-foreground line-through mr-2">{plan.originalPrice}</span>
+                )}
                 <span className="text-4xl font-bold text-foreground">{plan.price}</span>
                 <span className="text-muted-foreground">{plan.period}</span>
               </div>
-              <p className="text-sm text-muted-foreground mb-6">{plan.subtext}</p>
+              <p className={`text-sm mb-6 ${plan.highlightSubtext ? "bg-accent/20 text-accent-foreground font-semibold px-3 py-1.5 rounded-full inline-block" : "text-muted-foreground"}`}>
+                {plan.subtext}
+              </p>
 
               {/* Features */}
               <ul className="space-y-3 mb-8">
