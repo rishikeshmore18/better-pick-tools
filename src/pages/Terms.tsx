@@ -51,7 +51,7 @@ const Terms = () => {
         <section className="space-y-4">
           <h2 className="text-xl font-semibold text-foreground">6. Contact</h2>
           <p>
-            For questions about these terms, please contact us at support@betterpick.app
+            For questions about these terms, please contact us at info@ninetynineweb.com
           </p>
         </section>
       </div>

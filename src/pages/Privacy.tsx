@@ -43,15 +43,15 @@ const Privacy = () => {
         <section className="space-y-4">
           <h2 className="text-xl font-semibold text-foreground">Your Rights</h2>
           <p>
-            You may request access to, correction of, or deletion of your personal data by 
-            contacting us at support@betterpick.app
+          You may request access to, correction of, or deletion of your personal data by 
+            contacting us at info@ninetynineweb.com
           </p>
         </section>
 
         <section className="space-y-4">
           <h2 className="text-xl font-semibold text-foreground">Contact</h2>
           <p>
-            For privacy-related questions, please contact us at support@betterpick.app
+            For privacy-related questions, please contact us at info@ninetynineweb.com
           </p>
         </section>
       </div>

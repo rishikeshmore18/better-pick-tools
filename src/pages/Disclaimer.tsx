@@ -54,7 +54,7 @@ const Disclaimer = () => {
         <section className="space-y-4">
           <h2 className="text-xl font-semibold text-foreground">Contact</h2>
           <p>
-            For questions about this disclaimer, please contact us at support@betterpick.app
+            For questions about this disclaimer, please contact us at info@ninetynineweb.com
           </p>
         </section>
       </div>
