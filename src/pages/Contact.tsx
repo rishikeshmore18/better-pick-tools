@@ -19,10 +19,10 @@ const Contact = () => {
             <div>
               <h2 className="text-lg font-semibold text-foreground mb-2">Email Support</h2>
               <a 
-                href="mailto:support@betterpick.app" 
+                href="mailto:info@ninetynineweb.com" 
                 className="text-accent hover:underline font-medium"
               >
-                support@betterpick.app
+                info@ninetynineweb.com
               </a>
               <p className="text-sm text-muted-foreground mt-2">
                 We respond within 2 business days.
