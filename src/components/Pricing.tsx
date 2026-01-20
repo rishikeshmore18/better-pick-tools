@@ -74,7 +74,7 @@ export function Pricing() {
                 <span className="text-4xl font-bold text-foreground">{plan.price}</span>
                 <span className="text-muted-foreground">{plan.period}</span>
               </div>
-              <p className={`text-sm mb-6 ${plan.highlightSubtext ? "bg-accent/20 text-accent-foreground font-semibold px-3 py-1.5 rounded-full inline-block" : "text-muted-foreground"}`}>
+              <p className={`text-sm mb-6 ${plan.highlightSubtext ? "bg-primary text-primary-foreground font-semibold px-3 py-1.5 rounded-full inline-block" : "text-muted-foreground"}`}>
                 {plan.subtext}
               </p>
 
