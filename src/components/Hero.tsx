@@ -1,5 +1,7 @@
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useCheckout } from "@/hooks/useCheckout";
+import { Loader2 } from "lucide-react";
 
 const trustBadges = [
   "Transparent logic",
@@ -9,6 +11,8 @@ const trustBadges = [
 ];
 
 export function Hero() {
+  const { startCheckout, loading } = useCheckout();
+
   const scrollToSection = (id: string) => {
     const element = document.querySelector(id);
     if (element) {
@@ -40,9 +44,17 @@ export function Hero() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10 animate-fade-in" style={{ animationDelay: "0.3s" }}>
           <Button 
             className="btn-primary text-base px-8 py-6 h-auto"
-            onClick={() => window.open("https://buy.stripe.com/dRmaEQ9M2btv3E2bQ37wA00", "_blank")}
+            onClick={() => startCheckout("annual")}
+            disabled={loading}
           >
-            Try 7 Days Free
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Loading...
+              </>
+            ) : (
+              "Try 7 Days Free"
+            )}
           </Button>
           <Button 
             variant="outline" 

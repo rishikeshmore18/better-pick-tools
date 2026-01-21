@@ -1,5 +1,7 @@
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useCheckout } from "@/hooks/useCheckout";
+import { Loader2 } from "lucide-react";
 
 const plans = [
   {
@@ -18,7 +20,7 @@ const plans = [
     cta: "Start Free Trial",
     featured: true,
     badge: "Best value",
-    checkoutUrl: "https://buy.stripe.com/dRmaEQ9M2btv3E2bQ37wA00",
+    plan: "annual" as const,
   },
   {
     name: "Monthly",
@@ -34,11 +36,13 @@ const plans = [
     ],
     cta: "Start Monthly",
     featured: false,
-    checkoutUrl: "https://buy.stripe.com/7sY9AM6zQ557fmK7zN7wA01",
+    plan: "monthly" as const,
   },
 ];
 
 export function Pricing() {
+  const { startCheckout, loading } = useCheckout();
+
   return (
     <section id="pricing" className="section-padding bg-muted">
       <div className="container-narrow">
@@ -55,7 +59,7 @@ export function Pricing() {
             <div 
               key={plan.name}
               className={`${plan.featured ? "pricing-card-featured" : "pricing-card"} transition-all duration-300 hover:scale-105 hover:shadow-xl cursor-pointer`}
-              onClick={() => window.open(plan.checkoutUrl, "_blank")}
+              onClick={() => startCheckout(plan.plan)}
             >
               {/* Badge */}
               {plan.badge && (
@@ -96,10 +100,15 @@ export function Pricing() {
                 className={plan.featured ? "btn-primary w-full" : "btn-secondary w-full"}
                 onClick={(e) => {
                   e.stopPropagation();
-                  window.open(plan.checkoutUrl, "_blank");
+                  startCheckout(plan.plan);
                 }}
+                disabled={loading}
               >
-                {plan.cta}
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  plan.cta
+                )}
               </Button>
             </div>
           ))}
