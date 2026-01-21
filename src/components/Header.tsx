@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useCheckout } from "@/hooks/useCheckout";
 
 const navItems = [
   { label: "How it works", anchor: "#how-it-works" },
@@ -12,6 +13,7 @@ const navItems = [
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { startCheckout, loading } = useCheckout();
 
   const scrollToSection = (anchor: string) => {
     const element = document.querySelector(anchor);
@@ -54,9 +56,14 @@ export function Header() {
             <Button 
               className="btn-primary" 
               size="sm"
-              onClick={() => window.open("https://buy.stripe.com/dRmaEQ9M2btv3E2bQ37wA00", "_blank")}
+              onClick={() => startCheckout("annual")}
+              disabled={loading}
             >
-              Try 7 Days Free
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Try 7 Days Free"
+              )}
             </Button>
           </div>
 
@@ -96,9 +103,14 @@ export function Header() {
               </Link>
               <Button 
                 className="btn-primary w-full mt-2"
-                onClick={() => window.open("https://buy.stripe.com/dRmaEQ9M2btv3E2bQ37wA00", "_blank")}
+                onClick={() => startCheckout("annual")}
+                disabled={loading}
               >
-                Try 7 Days Free
+                {loading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  "Try 7 Days Free"
+                )}
               </Button>
             </nav>
           </div>
