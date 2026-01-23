@@ -15,7 +15,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const nextUrl = searchParams.get("next") || "/";
+  const nextUrl = searchParams.get("next") || "/choose-plan";
   const nextParam = searchParams.get("next");
   const signupHref = nextParam ? `/signup?next=${encodeURIComponent(nextParam)}` : "/signup";
 

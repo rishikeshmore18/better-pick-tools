@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ChoosePlan from "./pages/ChoosePlan";
 import Members from "./pages/Members";
 import Subscribe from "./pages/Subscribe";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/choose-plan" element={<ChoosePlan />} />
           <Route path="/subscribe" element={<Subscribe />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />

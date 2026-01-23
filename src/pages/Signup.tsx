@@ -16,9 +16,9 @@ const Signup = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Default to landing page unless explicitly provided.
+  // Default to choose-plan page unless explicitly provided.
   // This prevents "Login" from dropping users into the members subscription gate.
-  const nextUrl = searchParams.get("next") || "/";
+  const nextUrl = searchParams.get("next") || "/choose-plan";
   const nextParam = searchParams.get("next");
   const loginHref = nextParam ? `/login?next=${encodeURIComponent(nextParam)}` : "/login";
 
