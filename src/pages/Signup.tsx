@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import GoogleSignInButton from "@/components/GoogleSignInButton";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
@@ -189,6 +190,17 @@ const Signup = () => {
                 )}
               </Button>
             </form>
+
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+              </div>
+            </div>
+
+            <GoogleSignInButton redirectTo={`${window.location.origin}${nextUrl}`} />
 
             <p className="text-sm text-muted-foreground text-center mt-6">
               Already have an account?{" "}
