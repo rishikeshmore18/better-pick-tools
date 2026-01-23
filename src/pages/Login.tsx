@@ -15,21 +15,18 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const nextUrl = searchParams.get("next") || "/members";
+  const nextUrl = searchParams.get("next") || "/";
+  const nextParam = searchParams.get("next");
+  const signupHref = nextParam ? `/signup?next=${encodeURIComponent(nextParam)}` : "/signup";
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate(nextUrl);
-      }
-    };
-    checkSession();
+    // Listener first to avoid missing auth events during init
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) navigate(nextUrl);
+    });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        navigate(nextUrl);
-      }
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) navigate(nextUrl);
     });
 
     return () => subscription.unsubscribe();
@@ -99,7 +96,15 @@ const Login = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Password</Label>
+                  <Link
+                    to="/forgot-password"
+                    className="text-sm text-accent hover:underline font-medium"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
                 <Input
                   id="password"
                   type="password"
@@ -125,7 +130,7 @@ const Login = () => {
 
             <p className="text-sm text-muted-foreground text-center mt-6">
               Don't have an account?{" "}
-              <Link to="/signup" className="text-accent hover:underline font-medium">
+              <Link to={signupHref} className="text-accent hover:underline font-medium">
                 Create one
               </Link>
             </p>

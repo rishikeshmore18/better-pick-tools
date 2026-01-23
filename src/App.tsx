@@ -7,6 +7,9 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Members from "./pages/Members";
+import Subscribe from "./pages/Subscribe";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Success from "./pages/Success";
 import Cancel from "./pages/Cancel";
 import Terms from "./pages/Terms";
@@ -29,6 +32,9 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/subscribe" element={<Subscribe />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/members" element={<Members />} />
           <Route path="/success" element={<Success />} />
           <Route path="/cancel" element={<Cancel />} />
