@@ -16,7 +16,11 @@ const Signup = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const nextUrl = searchParams.get("next") || "/members";
+  // Default to landing page unless explicitly provided.
+  // This prevents "Login" from dropping users into the members subscription gate.
+  const nextUrl = searchParams.get("next") || "/";
+  const nextParam = searchParams.get("next");
+  const loginHref = nextParam ? `/login?next=${encodeURIComponent(nextParam)}` : "/login";
 
   useEffect(() => {
     // Check if already logged in
@@ -188,7 +192,7 @@ const Signup = () => {
 
             <p className="text-sm text-muted-foreground text-center mt-6">
               Already have an account?{" "}
-              <Link to="/login" className="text-accent hover:underline font-medium">
+              <Link to={loginHref} className="text-accent hover:underline font-medium">
                 Sign in
               </Link>
             </p>
