@@ -3,12 +3,15 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { sanitizeRedirectUrl } from "@/lib/sanitizeRedirect";
 
 type Plan = "annual" | "monthly";
 
 const Subscribe = () => {
   const [searchParams] = useSearchParams();
-  const plan = (searchParams.get("plan") as Plan) || "annual";
+  const planParam = searchParams.get("plan");
+  // Validate plan parameter to only allow "annual" or "monthly"
+  const plan: Plan = planParam === "monthly" ? "monthly" : "annual";
   const navigate = useNavigate();
   const { toast } = useToast();
   const [starting, setStarting] = useState(true);
@@ -16,7 +19,8 @@ const Subscribe = () => {
   useEffect(() => {
     let cancelled = false;
 
-    const nextUrl = `/subscribe?plan=${plan}`;
+    // Use sanitized redirect URL for the login redirect
+    const nextUrl = sanitizeRedirectUrl(`/subscribe?plan=${plan}`, "/subscribe?plan=annual");
 
     const start = async () => {
       try {
