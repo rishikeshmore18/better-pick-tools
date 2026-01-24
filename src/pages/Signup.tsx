@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
+import { sanitizeRedirectUrl } from "@/lib/sanitizeRedirect";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
@@ -17,11 +18,9 @@ const Signup = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Default to choose-plan page unless explicitly provided.
-  // This prevents "Login" from dropping users into the members subscription gate.
-  const nextUrl = searchParams.get("next") || "/choose-plan";
-  const nextParam = searchParams.get("next");
-  const loginHref = nextParam ? `/login?next=${encodeURIComponent(nextParam)}` : "/login";
+  // Sanitize the next URL to prevent open redirect attacks
+  const nextUrl = sanitizeRedirectUrl(searchParams.get("next"));
+  const loginHref = `/login?next=${encodeURIComponent(nextUrl)}`;
 
   useEffect(() => {
     // Check if already logged in

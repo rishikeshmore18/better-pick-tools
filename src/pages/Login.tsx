@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
+import { sanitizeRedirectUrl } from "@/lib/sanitizeRedirect";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -16,9 +17,9 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const nextUrl = searchParams.get("next") || "/choose-plan";
-  const nextParam = searchParams.get("next");
-  const signupHref = nextParam ? `/signup?next=${encodeURIComponent(nextParam)}` : "/signup";
+  // Sanitize the next URL to prevent open redirect attacks
+  const nextUrl = sanitizeRedirectUrl(searchParams.get("next"));
+  const signupHref = `/signup?next=${encodeURIComponent(nextUrl)}`;
 
   useEffect(() => {
     // Listener first to avoid missing auth events during init
