@@ -101,8 +101,13 @@ const Signup = () => {
 
         toast({
           title: "Account created!",
-          description: "Welcome to Better Pick.",
+          description: "Redirecting to checkout...",
         });
+
+        // Redirect to next step after brief delay
+        setTimeout(() => {
+          navigate(nextUrl);
+        }, 1000);
       }
     } catch (err) {
       toast({

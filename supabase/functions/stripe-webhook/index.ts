@@ -154,6 +154,54 @@ serve(async (req) => {
         break;
       }
 
+      case "invoice.payment_failed": {
+        const invoice = event.data.object as Stripe.Invoice;
+        console.log("Payment failed for invoice:", invoice.id);
+
+        if (invoice.subscription) {
+          const subscriptionId = typeof invoice.subscription === "string" 
+            ? invoice.subscription 
+            : invoice.subscription.id;
+
+          // Update subscription status to past_due
+          await supabase
+            .from("subscriptions")
+            .update({
+              status: "past_due",
+            })
+            .eq("stripe_subscription_id", subscriptionId);
+
+          console.log("Updated subscription to past_due:", subscriptionId);
+        }
+        break;
+      }
+
+      case "invoice.payment_succeeded": {
+        const invoice = event.data.object as Stripe.Invoice;
+        console.log("Payment succeeded for invoice:", invoice.id);
+
+        if (invoice.subscription) {
+          const subscriptionId = typeof invoice.subscription === "string" 
+            ? invoice.subscription 
+            : invoice.subscription.id;
+
+          // Fetch the latest subscription status from Stripe to ensure accuracy
+          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+
+          await supabase
+            .from("subscriptions")
+            .update({
+              status: subscription.status,
+              current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+              cancel_at_period_end: subscription.cancel_at_period_end,
+            })
+            .eq("stripe_subscription_id", subscriptionId);
+
+          console.log("Updated subscription after successful payment:", subscriptionId, subscription.status);
+        }
+        break;
+      }
+
       default:
         console.log("Unhandled event type:", event.type);
     }
