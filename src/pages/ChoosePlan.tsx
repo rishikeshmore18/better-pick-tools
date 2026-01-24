@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCheckout } from "@/hooks/useCheckout";
@@ -44,6 +45,19 @@ const plans = [
 
 const ChoosePlan = () => {
   const { startCheckout, loading } = useCheckout();
+
+  // Auto-scroll to pricing section if hash is present
+  useEffect(() => {
+    if (window.location.hash === "#pricing") {
+      // Small delay to ensure DOM is ready
+      setTimeout(() => {
+        const pricingSection = document.getElementById("pricing-section");
+        if (pricingSection) {
+          pricingSection.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 100);
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-muted flex flex-col">
@@ -97,7 +111,7 @@ const ChoosePlan = () => {
         </section>
 
         {/* Pricing Plans Section */}
-        <section className="section-padding bg-muted">
+        <section id="pricing-section" className="section-padding bg-muted">
           <div className="container-narrow">
             <div className="text-center mb-12">
               <h2 className="text-2xl md:text-3xl font-semibold text-foreground mb-3">

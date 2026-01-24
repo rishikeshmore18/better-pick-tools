@@ -324,7 +324,7 @@ const Members = () => {
                   <Button
                     variant="default"
                     size="sm"
-                    onClick={() => navigate("/#pricing")}
+                    onClick={() => navigate("/choose-plan#pricing")}
                   >
                     View Plans
                   </Button>
@@ -426,7 +426,7 @@ const Members = () => {
                   Update Payment Method
                 </Button>
               ) : (
-                <Button onClick={() => navigate("/#pricing")} variant="default">
+                <Button onClick={() => navigate("/choose-plan#pricing")} variant="default">
                   View Plans
                 </Button>
               )}
