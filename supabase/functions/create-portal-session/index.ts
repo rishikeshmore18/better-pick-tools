@@ -73,6 +73,29 @@ serve(async (req) => {
       apiVersion: "2023-10-16",
     });
 
+    // Defense in depth: Verify the Stripe customer belongs to this user
+    const customer = await stripe.customers.retrieve(profile.stripe_customer_id);
+    if (customer.deleted) {
+      console.error("Stripe customer was deleted");
+      return new Response(JSON.stringify({ error: "Billing account not found" }), {
+        status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    
+    // Verify customer metadata matches user ID (set during checkout)
+    if (customer.metadata?.user_id && customer.metadata.user_id !== user.id) {
+      console.error("Customer ID mismatch - potential hijacking attempt", {
+        customerId: profile.stripe_customer_id,
+        customerUserId: customer.metadata?.user_id,
+        requestingUserId: user.id,
+      });
+      return new Response(JSON.stringify({ error: "Unauthorized access" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const baseUrl = Deno.env.get("APP_BASE_URL") || "https://betterpick.lovable.app";
 
     const portalSession = await stripe.billingPortal.sessions.create({

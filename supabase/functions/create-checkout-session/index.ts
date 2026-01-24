@@ -103,9 +103,29 @@ serve(async (req) => {
       });
 
       if (existingCustomers.data.length > 0) {
-        customerId = existingCustomers.data[0].id;
+        const existingCustomer = existingCustomers.data[0];
+        // Verify existing customer belongs to this user or has no user_id
+        if (existingCustomer.metadata?.user_id && existingCustomer.metadata.user_id !== user.id) {
+          console.error("Existing Stripe customer belongs to different user", {
+            customerId: existingCustomer.id,
+            customerUserId: existingCustomer.metadata?.user_id,
+            requestingUserId: user.id,
+          });
+          return new Response(JSON.stringify({ error: "Email already associated with another account" }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        customerId = existingCustomer.id;
+        
+        // Update customer metadata if not set
+        if (!existingCustomer.metadata?.user_id) {
+          await stripe.customers.update(customerId, {
+            metadata: { user_id: user.id },
+          });
+        }
       } else {
-        // Create new customer
+        // Create new customer with user_id in metadata
         const customer = await stripe.customers.create({
           email: user.email,
           metadata: { user_id: user.id },
@@ -113,7 +133,7 @@ serve(async (req) => {
         customerId = customer.id;
       }
 
-      // Save customer ID to profile
+      // Save customer ID to profile (service role bypasses RLS)
       await supabaseAdmin
         .from("profiles")
         .upsert({
@@ -123,6 +143,20 @@ serve(async (req) => {
         });
 
       console.log("Created/linked Stripe customer:", customerId);
+    } else {
+      // Verify existing customer ID belongs to this user (defense in depth)
+      const customer = await stripe.customers.retrieve(customerId);
+      if (!customer.deleted && customer.metadata?.user_id && customer.metadata.user_id !== user.id) {
+        console.error("Stored customer ID mismatch - potential data corruption", {
+          customerId,
+          customerUserId: customer.metadata?.user_id,
+          requestingUserId: user.id,
+        });
+        return new Response(JSON.stringify({ error: "Billing configuration error" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
     const baseUrl = Deno.env.get("APP_BASE_URL") || "https://betterpick.lovable.app";
