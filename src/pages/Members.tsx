@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -60,13 +60,17 @@ const Members = () => {
   const [selectedGame, setSelectedGame] = useState("powerball");
   const [pickSets, setPickSets] = useState<PickSet[]>([]);
   const [portalLoading, setPortalLoading] = useState(false);
+  const [pollingSubscription, setPollingSubscription] = useState(false);
+  const pollingAttemptsRef = useRef(0);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const today = new Date().toISOString().split("T")[0];
 
-  const fetchDailyPicks = useCallback(async (game: string) => {
-    setPicksLoading(true);
+  const fetchDailyPicks = useCallback(async (game: string, silent = false) => {
+    if (!silent) {
+      setPicksLoading(true);
+    }
     try {
       const response = await supabase.functions.invoke("get-daily-picks", {
         body: { game, date: today },
@@ -76,12 +80,8 @@ const Members = () => {
         // Handle specific error codes
         const errorData = response.error;
         if (errorData.message?.includes("NO_SUBSCRIPTION") || errorData.message?.includes("SUBSCRIPTION_INACTIVE")) {
-          toast({
-            title: "Subscription required",
-            description: "Please subscribe to access the dashboard.",
-          });
-          navigate("/#pricing");
-          return;
+          // Return error info instead of immediately redirecting - let polling handle it
+          return { error: "NO_SUBSCRIPTION", shouldPoll: true };
         }
         throw new Error(errorData.message || "Failed to fetch picks");
       }
@@ -101,18 +101,25 @@ const Members = () => {
             interval: isAnnual ? "year" : "month"
           });
         }
+        return { success: true };
       }
+      return { success: false };
     } catch (err) {
       console.error("Error fetching picks:", err);
-      toast({
-        title: "Error",
-        description: "Could not load daily picks. Please try again.",
-        variant: "destructive",
-      });
+      if (!silent) {
+        toast({
+          title: "Error",
+          description: "Could not load daily picks. Please try again.",
+          variant: "destructive",
+        });
+      }
+      return { error: "UNKNOWN_ERROR" };
     } finally {
-      setPicksLoading(false);
+      if (!silent) {
+        setPicksLoading(false);
+      }
     }
-  }, [today, navigate, toast]);
+  }, [today, toast]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -124,8 +131,16 @@ const Members = () => {
       }
 
       // Fetch picks from server (includes subscription validation)
-      await fetchDailyPicks(selectedGame);
-      setLoading(false);
+      const result = await fetchDailyPicks(selectedGame);
+      
+      // If subscription check failed but user is authenticated, start polling
+      // This handles the case where user just paid but webhook hasn't processed yet
+      if (result?.error === "NO_SUBSCRIPTION" && result?.shouldPoll) {
+        setPollingSubscription(true);
+        pollingAttemptsRef.current = 0;
+      } else {
+        setLoading(false);
+      }
     };
 
     checkAuth();
@@ -139,9 +154,72 @@ const Members = () => {
     return () => authSub.unsubscribe();
   }, [navigate, fetchDailyPicks, selectedGame]);
 
+  // Poll for subscription updates when user might have just paid
+  useEffect(() => {
+    if (!pollingSubscription) return;
+
+    const maxAttempts = 8; // Poll for ~16 seconds (8 attempts * 2 seconds)
+    let intervalId: NodeJS.Timeout;
+    let isPolling = true;
+
+    const pollSubscription = async () => {
+      if (!isPolling) return;
+      
+      pollingAttemptsRef.current += 1;
+      const attempts = pollingAttemptsRef.current;
+
+      // Check subscription status silently
+      const result = await fetchDailyPicks(selectedGame, true);
+      
+      if (result?.success) {
+        // Subscription is now active!
+        isPolling = false;
+        setPollingSubscription(false);
+        pollingAttemptsRef.current = 0;
+        setLoading(false);
+        setPicksLoading(false);
+        toast({
+          title: "Subscription activated",
+          description: "Your subscription is now active. Welcome!",
+        });
+        if (intervalId) clearInterval(intervalId);
+        return;
+      }
+
+      if (attempts >= maxAttempts) {
+        // Timeout - stop polling
+        isPolling = false;
+        setPollingSubscription(false);
+        pollingAttemptsRef.current = 0;
+        setLoading(false);
+        // Show the access restricted message
+        toast({
+          title: "Payment processing",
+          description: "Your payment is still being processed. Please wait a moment and refresh.",
+          variant: "default",
+        });
+        if (intervalId) clearInterval(intervalId);
+      }
+    };
+
+    // Poll every 2 seconds
+    intervalId = setInterval(pollSubscription, 2000);
+    
+    // Initial poll
+    pollSubscription();
+
+    return () => {
+      isPolling = false;
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [pollingSubscription, selectedGame, fetchDailyPicks, toast]);
+
   const handleGameChange = (game: string) => {
     setSelectedGame(game);
-    fetchDailyPicks(game);
+    // Only fetch if not polling (polling will handle its own game)
+    if (!pollingSubscription) {
+      fetchDailyPicks(game);
+    }
   };
 
   const handleLogout = async () => {
@@ -178,10 +256,25 @@ const Members = () => {
     }
   };
 
-  if (loading) {
+  if (loading || pollingSubscription) {
     return (
       <div className="min-h-screen bg-muted flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-accent mx-auto mb-4" />
+          {pollingSubscription && (
+            <>
+              <h2 className="text-lg font-semibold text-foreground mb-2">
+                Activating Your Subscription
+              </h2>
+              <p className="text-muted-foreground mb-1">
+                Please wait while we confirm your payment...
+              </p>
+              <p className="text-sm text-muted-foreground">
+                This usually takes just a few seconds
+              </p>
+            </>
+          )}
+        </div>
       </div>
     );
   }
