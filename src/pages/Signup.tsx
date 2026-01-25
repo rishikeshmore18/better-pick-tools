@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
 import { sanitizeRedirectUrl } from "@/lib/sanitizeRedirect";
+import { getRedirectUrl } from "@/lib/checkSubscription";
 
 const Signup = () => {
   const [email, setEmail] = useState("");
@@ -19,27 +20,29 @@ const Signup = () => {
   const { toast } = useToast();
 
   // Sanitize the next URL to prevent open redirect attacks
-  const nextUrl = sanitizeRedirectUrl(searchParams.get("next"));
-  const loginHref = `/login?next=${encodeURIComponent(nextUrl)}`;
+  const requestedUrl = sanitizeRedirectUrl(searchParams.get("next"));
+  const loginHref = `/login?next=${encodeURIComponent(requestedUrl)}`;
 
   useEffect(() => {
     // Check if already logged in
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate(nextUrl);
+        const redirectUrl = await getRedirectUrl(requestedUrl);
+        navigate(redirectUrl);
       }
     };
     checkSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session) {
-        navigate(nextUrl);
+        const redirectUrl = await getRedirectUrl(requestedUrl);
+        navigate(redirectUrl);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate, nextUrl]);
+  }, [navigate, requestedUrl]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,7 +68,7 @@ const Signup = () => {
     setLoading(true);
 
     try {
-      const redirectUrl = `${window.location.origin}${nextUrl}`;
+      const redirectUrl = `${window.location.origin}${requestedUrl}`;
       
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -101,12 +104,13 @@ const Signup = () => {
 
         toast({
           title: "Account created!",
-          description: "Redirecting to checkout...",
+          description: "Redirecting...",
         });
 
-        // Redirect to next step after brief delay
+        // Check subscription status and redirect accordingly
+        const finalRedirectUrl = await getRedirectUrl(requestedUrl);
         setTimeout(() => {
-          navigate(nextUrl);
+          navigate(finalRedirectUrl);
         }, 1000);
       }
     } catch (err) {
@@ -204,7 +208,7 @@ const Signup = () => {
               </div>
             </div>
 
-            <GoogleSignInButton redirectTo={`${window.location.origin}${nextUrl}`} />
+            <GoogleSignInButton redirectTo={`${window.location.origin}${requestedUrl}`} />
 
             <p className="text-sm text-muted-foreground text-center mt-6">
               Already have an account?{" "}

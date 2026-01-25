@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import GoogleSignInButton from "@/components/GoogleSignInButton";
 import { sanitizeRedirectUrl } from "@/lib/sanitizeRedirect";
+import { getRedirectUrl } from "@/lib/checkSubscription";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -18,21 +19,27 @@ const Login = () => {
   const { toast } = useToast();
 
   // Sanitize the next URL to prevent open redirect attacks
-  const nextUrl = sanitizeRedirectUrl(searchParams.get("next"));
-  const signupHref = `/signup?next=${encodeURIComponent(nextUrl)}`;
+  const requestedUrl = sanitizeRedirectUrl(searchParams.get("next"));
+  const signupHref = `/signup?next=${encodeURIComponent(requestedUrl)}`;
 
   useEffect(() => {
     // Listener first to avoid missing auth events during init
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) navigate(nextUrl);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session) {
+        const redirectUrl = await getRedirectUrl(requestedUrl);
+        navigate(redirectUrl);
+      }
     });
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) navigate(nextUrl);
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (session) {
+        const redirectUrl = await getRedirectUrl(requestedUrl);
+        navigate(redirectUrl);
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate, nextUrl]);
+  }, [navigate, requestedUrl]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -139,7 +146,7 @@ const Login = () => {
               </div>
             </div>
 
-            <GoogleSignInButton redirectTo={`${window.location.origin}${nextUrl}`} />
+            <GoogleSignInButton redirectTo={`${window.location.origin}${requestedUrl}`} />
 
             <p className="text-sm text-muted-foreground text-center mt-6">
               Don't have an account?{" "}
