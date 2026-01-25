@@ -72,19 +72,42 @@ serve(async (req) => {
         if (subscriptionId) {
           const subscription = await stripe.subscriptions.retrieve(subscriptionId);
           
-          await supabase
-            .from("subscriptions")
-            .upsert({
-              user_id: userId,
-              stripe_subscription_id: subscriptionId,
-              status: subscription.status,
-              current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
-              cancel_at_period_end: subscription.cancel_at_period_end,
-            }, {
-              onConflict: "stripe_subscription_id",
-            });
+          // Determine userId with fallback to customer lookup
+          let finalUserId = userId;
+          
+          if (!finalUserId && customerId) {
+            console.log("userId missing from metadata, looking up by customer_id:", customerId);
+            const { data: profile, error } = await supabase
+              .from("profiles")
+              .select("id")
+              .eq("stripe_customer_id", customerId)
+              .maybeSingle();
 
-          console.log("Created subscription record:", subscriptionId);
+            if (error) {
+              console.error("Error looking up user by customer_id:", error);
+            } else if (profile) {
+              finalUserId = profile.id;
+              console.log("Found user via customer lookup:", finalUserId);
+            }
+          }
+
+          if (finalUserId) {
+            await supabase
+              .from("subscriptions")
+              .upsert({
+                user_id: finalUserId,
+                stripe_subscription_id: subscriptionId,
+                status: subscription.status,
+                current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+                cancel_at_period_end: subscription.cancel_at_period_end,
+              }, {
+                onConflict: "stripe_subscription_id",
+              });
+
+            console.log("Created subscription record:", subscriptionId, "for user:", finalUserId);
+          } else {
+            console.error("Cannot create subscription record: no userId found for customer:", customerId);
+          }
         }
         break;
       }
