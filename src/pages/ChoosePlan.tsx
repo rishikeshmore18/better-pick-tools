@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useCheckout } from "@/hooks/useCheckout";
 import { Loader2 } from "lucide-react";
 import { CalendarCheck, Shield, MapPin } from "lucide-react";
+import UserProfileDropdown from "@/components/UserProfileDropdown";
 
 const plans = [
   {
@@ -61,13 +62,14 @@ const ChoosePlan = () => {
 
   return (
     <div className="min-h-screen bg-muted flex flex-col">
-      <header className="p-6 border-b border-border bg-background">
+      <header className="p-6 border-b border-border bg-background flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 w-fit">
           <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
             <span className="text-accent-foreground font-bold text-sm">BP</span>
           </div>
           <span className="font-semibold text-lg text-foreground">Better Pick</span>
         </Link>
+        <UserProfileDropdown />
       </header>
 
       <main className="flex-1">

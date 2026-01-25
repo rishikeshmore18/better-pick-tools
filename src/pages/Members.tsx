@@ -3,7 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, LogOut, CreditCard, RefreshCw } from "lucide-react";
+import { Loader2, RefreshCw } from "lucide-react";
+import UserProfileDropdown from "@/components/UserProfileDropdown";
 import {
   Select,
   SelectContent,
@@ -222,11 +223,6 @@ const Members = () => {
     }
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate("/");
-  };
-
   const handleManageBilling = async () => {
     setPortalLoading(true);
     try {
@@ -289,27 +285,11 @@ const Members = () => {
           <span className="font-semibold text-lg text-foreground">Better Pick</span>
         </Link>
 
-        <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleManageBilling}
-            disabled={portalLoading}
-          >
-            {portalLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <>
-                <CreditCard className="h-4 w-4 mr-2" />
-                Manage Billing
-              </>
-            )}
-          </Button>
-          <Button variant="ghost" size="sm" onClick={handleLogout}>
-            <LogOut className="h-4 w-4 mr-2" />
-            Logout
-          </Button>
-        </div>
+        <UserProfileDropdown
+          showManageBilling={true}
+          onManageBilling={handleManageBilling}
+          manageBillingLoading={portalLoading}
+        />
       </header>
 
       <main className="flex-1 container-narrow py-8">
@@ -328,21 +308,6 @@ const Members = () => {
                     {planDetails?.name} Plan - {planDetails?.price}/{planDetails?.interval}
                   </p>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleManageBilling}
-                  disabled={portalLoading}
-                >
-                  {portalLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <>
-                      <CreditCard className="h-4 w-4 mr-2" />
-                      Manage
-                    </>
-                  )}
-                </Button>
               </div>
 
               {/* Status-specific messages */}
