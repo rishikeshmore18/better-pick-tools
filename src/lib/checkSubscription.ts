@@ -37,21 +37,21 @@ export async function hasActiveSubscription(): Promise<boolean> {
  * @returns Promise<string> - The URL to redirect to
  */
 export async function getRedirectUrl(requestedUrl: string | null = null): Promise<string> {
-  // If a specific URL was requested and it's /members, respect it
-  // (user might be trying to access dashboard directly)
-  if (requestedUrl === "/members") {
-    return "/members";
-  }
-
-  // Check subscription status
+  // Check subscription status first - this is the priority
   const hasSubscription = await hasActiveSubscription();
 
   if (hasSubscription) {
-    // User has active subscription, redirect to dashboard
+    // User has active subscription (active or trialing), always redirect to dashboard
+    // This ensures users with free trials go directly to dashboard after login
     return "/members";
-  } else {
-    // User doesn't have subscription, redirect to plans page
-    // But respect requested URL if it's a valid path (like /choose-plan)
-    return requestedUrl || "/choose-plan";
   }
+
+  // If a specific URL was requested and user doesn't have subscription, respect it
+  // (e.g., user might want to go to /choose-plan to subscribe)
+  if (requestedUrl && requestedUrl !== "/members") {
+    return requestedUrl;
+  }
+
+  // User doesn't have subscription and no specific URL requested, redirect to plans page
+  return "/choose-plan";
 }
